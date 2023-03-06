@@ -1,0 +1,112 @@
+---
+title: "Simulate a training set for 9-metabolite identification task"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+source("./main_functions/max_pooling.R")
+```
+
+```{r}
+## load original data
+real_lib_together=read.csv("real_lib_9_metabolites.csv",sep=",")
+rownames(real_lib_together)=real_lib_together[,1]
+real_lib_together=real_lib_together[,-1]
+dim(real_lib_together)
+# 9 40000
+
+chenomx_lib_together=read.csv("syn_lib_9_metabolites.csv",sep=",")
+rownames(chenomx_lib_together)=chenomx_lib_together[,1]
+chenomx_lib_together=chenomx_lib_together[,-1]
+dim(chenomx_lib_together)
+#    9 40000
+
+```
+
+```{r}
+## concentration table
+concentration_table=rbind(c(0.73,0.52),c(0.55,0.01),c(0.82,29.94),c(1.08,0.20),c(0.50,5.00),c(1.69,10.67),c(0.52,0.20))
+concentration_table=as.data.frame(concentration_table)
+rownames(concentration_table)=c("organoids","human_plasma","cerebellum","cells","amniotic_fluid","fly_brain","cell_media")
+colnames(concentration_table)=c("shape","rate")
+```
+
+
+```{r}
+ppm=seq(-1,11,length.out = 40000)
+ppm_step=12/40000
+
+colnames(real_lib_together)=as.character(ppm)
+colnames(chenomx_lib_together)=as.character(ppm)
+rownames(real_lib_together)
+# "Choline"      "Cysteine"     "Glucose"      "Glutamate"   
+# "Glycine"      "Leucine"      "Lysine"       "Myo_inositol"
+# "Tryptophan"
+
+rownames(chenomx_lib_together)
+# "Choline"      "Cysteine"     "Glucose"      "Glutamate"   
+# "Glycine"      "Leucine"      "Lysine"       "Myo_inositol"
+# "Tryptophan"  
+
+
+d=1 # d is set from 1 to 7
+shape=concentration_table$shape[d]
+rate=concentration_table$rate[d]
+
+sim_fun=function(n,shape,rate,ppm_step,chenomx_lib_together,real_lib_together, d, output_dir){
+  num=sample(1:9,1)
+  shift=runif(1,-0.05,0.05)
+  step=floor(shift/ppm_step)
+  compound=sample(1:9,num)
+  label=rep(0,9)
+  label[compound]=1
+  real_index=sample(1:length(compound),1)
+  real_compound=compound[real_index]
+  chenomx_compound=compound[-real_index]
+  
+  chenomx_spec=chenomx_lib_together[chenomx_compound,]
+  concentration=rgamma(num,shape=shape,rate=rate)
+##leave the first concentration for the real metabolite
+  ## since DSS does not shift, so we do not shift the real metabolite
+  chenomx_spectra=colSums(c(concentration[-1])*chenomx_spec)
+  
+  if(step<0){
+    chenomx_spectra[(1:(40000-abs(step)))]=chenomx_spectra[(abs(step)+1):40000]
+    chenomx_spectra[((40000-abs(step)+1):40000)]=rep(0,abs(step))
+}
+  if(step>0){
+    chenomx_spectra[(step+1):40000]=chenomx_spectra[(1:(40000-step))]
+    chenomx_spectra[(1:step)]=rep(0,step)}
+  
+  total_spectra=colSums(rbind(concentration[1]*real_lib_together[real_compound,],chenomx_spectra))
+  total_spectra=total_spectra/max(total_spectra)
+  ## max_pooling for spectrum from 40k to 10k
+  down_table=max_pool(total_spectra,window_size = 4)
+  train_spectrum=down_table[,1]
+  
+  set_ID=paste("training_set",(d-1)*10000+n,sep="_")
+  label_ID=paste("training_label",(d-1)*10000+n,sep="_")
+  set_ID=paste(set_ID,"csv",sep=".")
+  label_ID=paste(label_ID,"csv",sep=".")
+  set_path=paste(output_dir,set_ID,sep="")
+  label_path=paste(output_dir,label_ID,sep="")
+
+  write.csv(t(train_spectrum),set_path)
+  write.csv(label,label_path)
+  
+}
+
+library(parallel)
+mc <- getOption("mc.cores", 20)
+
+mclapply(1:10000, FUN=sim_fun,
+         shape=shape,rate=rate,
+         ppm_step=ppm_step,
+         chenomx_lib_together=chenomx_lib_together,
+         real_lib_together = real_lib_together,
+         d=d,output_dir="./training_set/", mc.cores = mc)
+
+
+```
