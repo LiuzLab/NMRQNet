@@ -1,0 +1,2 @@
+model_checkpoint_path: "38quant_model_7_mse_4"
+all_model_checkpoint_paths: "38quant_model_7_mse_4"
