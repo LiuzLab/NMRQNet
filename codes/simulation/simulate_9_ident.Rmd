@@ -64,23 +64,23 @@ sim_fun=function(n,shape,rate,ppm_step,syn_lib_together,real_lib_together, d, ou
   label[compound]=1
   real_index=sample(1:length(compound),1)
   real_compound=compound[real_index]
-  chenomx_compound=compound[-real_index]
+  syn_compound=compound[-real_index]
   
-  chenomx_spec=syn_lib_together[chenomx_compound,]
+  syn_spec=syn_lib_together[syn_compound,]
   concentration=rgamma(num,shape=shape,rate=rate)
 ##leave the first concentration for the real metabolite
   ## since DSS does not shift, so we do not shift the real metabolite
-  chenomx_spectra=colSums(c(concentration[-1])*chenomx_spec)
+  syn_spectra=colSums(c(concentration[-1])*syn_spec)
   
   if(step<0){
-    chenomx_spectra[(1:(40000-abs(step)))]=chenomx_spectra[(abs(step)+1):40000]
-    chenomx_spectra[((40000-abs(step)+1):40000)]=rep(0,abs(step))
+    syn_spectra[(1:(40000-abs(step)))]=syn_spectra[(abs(step)+1):40000]
+    syn_spectra[((40000-abs(step)+1):40000)]=rep(0,abs(step))
 }
   if(step>0){
-    chenomx_spectra[(step+1):40000]=chenomx_spectra[(1:(40000-step))]
-    chenomx_spectra[(1:step)]=rep(0,step)}
+    syn_spectra[(step+1):40000]=syn_spectra[(1:(40000-step))]
+    syn_spectra[(1:step)]=rep(0,step)}
   
-  total_spectra=colSums(rbind(concentration[1]*real_lib_together[real_compound,],chenomx_spectra))
+  total_spectra=colSums(rbind(concentration[1]*real_lib_together[real_compound,],syn_spectra))
   total_spectra=total_spectra/max(total_spectra)
   ## max_pooling for spectrum from 40k to 10k
   down_table=max_pool(total_spectra,window_size = 4)
