@@ -7,7 +7,7 @@ ppm=seq(-1,11,length.out = 40000)
 ppm_step=12/40000
 
 #9 metabolites normalized synthesized spectra
-syn_9_norm=read.csv("chenomx_9meta_alignreal.csv",sep=",")
+syn_9_norm=read.csv("syn_9meta_alignreal.csv",sep=",")
 rownames(syn_9_norm)=as.character(syn_9_norm[,1])
 syn_9_norm=syn_9_norm[,-1]
 colnames(syn_9_norm)=NULL
