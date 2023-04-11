@@ -7,7 +7,7 @@ The input file provided to NMRQNet is a csv file.
 - See NMRQNet/data/tutorial_data/MDS_human_plasma.csv for example
 
 ## Data preprocessing
-- Tutorial for NMR spectra preprocessing is available at: [tutorial_data_preprocess](https://liuzlab.github.io/NMRQNet/tutorial/data_preprocess.html)
+- Tutorial for NMR spectra preprocessing is available at: [tutorial_data_preprocess](https://liuzlab.github.io/NMRQNet/tutorial/data_preprocessing.html)
 
 ## Running
 - Tutorial for EDTA plasma analysis: at NMRQNet/tutorial/tutorial_for_EDTA_plasma.ipynb
