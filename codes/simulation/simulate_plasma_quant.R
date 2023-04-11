@@ -9,7 +9,7 @@ ppm_region=seq(0.7,4.1,length.out = 12000)
 ppm_step=(4.1-0.7)/12000
 
 ###Load 38 metabolites peak signatures
-metabolite_lib_info=read.csv("chenomx_library_38.csv",sep=",")
+metabolite_lib_info=read.csv("reference_library_38.csv",sep=",")
 metabolite_lib_info=metabolite_lib_info[,-1]
 
 #Load lipoprotein clusters
