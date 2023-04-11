@@ -35,7 +35,7 @@ setwd(code_dir)
 ## Step 1: Load raw data
 ```{r}
 setwd(data_dir)
-spectra = read.csv("Mecp2_human_plasma.csv")
+spectra = read.csv("MDS_human_plasma.csv")
 ppm=as.numeric(spectra[,1])
 nmr_sample=spectra[,-1]
 
