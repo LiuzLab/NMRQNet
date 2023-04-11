@@ -58,25 +58,25 @@ sim_fun=function(n,shape,rate,ppm,ppm_step,syn_9_norm,real_9_norm,
   concen[real_compound]=concentration[1]
   
   if(num>1){
-    chenomx_compound=compound[-real_index] #for the rest of metabolites, their chenomx spectra are mixed
-    chenomx_spec=chenomx_9_norm[chenomx_compound,]
+    syn_compound=compound[-real_index] #for the rest of metabolites, their synthesized spectra are mixed
+    syn_spec=syn_9_norm[syn_compound,]
     
     ##leave the first concentration for the real metabolite
-    ## since DSS does not shift, so we only shift chenomx spectra
-    chenomx_spectra=colSums(c(concentration[-1])*as.matrix(chenomx_spec))
-    concen[chenomx_compound]=c(concentration[-1])
+    ## since DSS does not shift, so we only shift synthesized spectra
+    syn_spectra=colSums(c(concentration[-1])*as.matrix(syn_spec))
+    concen[syn_compound]=c(concentration[-1])
     
     if(step<0){
-      chenomx_spectra[(1:(40000-abs(step)))]=chenomx_spectra[(abs(step)+1):40000]
-      chenomx_spectra[((40000-abs(step)+1):40000)]=rep(0,abs(step))
+      syn_spectra[(1:(40000-abs(step)))]=syn_spectra[(abs(step)+1):40000]
+      syn_spectra[((40000-abs(step)+1):40000)]=rep(0,abs(step))
     }
     if(step>0){
-      chenomx_spectra[(step+1):40000]=chenomx_spectra[(1:(40000-step))]
-      chenomx_spectra[(1:step)]=rep(0,step)
+      syn_spectra[(step+1):40000]=syn_spectra[(1:(40000-step))]
+      syn_spectra[(1:step)]=rep(0,step)
     }
     
     total_spectra=colSums(rbind(concentration[1]*as.numeric(real_9_norm[real_compound,]),
-                                chenomx_spectra))
+                                syn_spectra))
     
   }else{
     total_spectra=concentration[1]*as.numeric(real_9_norm[real_compound,])
