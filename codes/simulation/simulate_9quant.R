@@ -6,11 +6,11 @@ source("./main_functions/integral.R")
 ppm=seq(-1,11,length.out = 40000)
 ppm_step=12/40000
 
-#9 metabolites normalized chenomx spectra
-chenomx_9_norm=read.csv("chenomx_9meta_alignreal.csv",sep=",")
-rownames(chenomx_9_norm)=as.character(chenomx_9_norm[,1])
-chenomx_9_norm=chenomx_9_norm[,-1]
-colnames(chenomx_9_norm)=NULL
+#9 metabolites normalized synthesized spectra
+syn_9_norm=read.csv("chenomx_9meta_alignreal.csv",sep=",")
+rownames(syn_9_norm)=as.character(syn_9_norm[,1])
+syn_9_norm=syn_9_norm[,-1]
+colnames(syn_9_norm)=NULL
 
 #9 metabolites normalized real spectra (with DSS)
 real_9_norm=read.csv("real_9meta_norm_align.csv",sep=",")
@@ -40,7 +40,7 @@ d=sample(1:7,1) #random choose one gamma function
 shape=concentration_table$shape[d]
 rate=concentration_table$rate[d]
 
-sim_fun=function(n,shape,rate,ppm,ppm_step,chenomx_9_norm,real_9_norm,
+sim_fun=function(n,shape,rate,ppm,ppm_step,syn_9_norm,real_9_norm,
                  dss_meta_ratio){
 
   num=sample(1:9,1) #number of metabolites
@@ -110,6 +110,6 @@ mc <- getOption("mc.cores", 20)
 mclapply(1:10000, FUN=sim_fun,
          shape=shape,rate=rate,ppm=ppm,
          ppm_step=ppm_step,
-         chenomx_9_norm=chenomx_9_norm,real_9_norm=real_9_norm,
+         syn_9_norm=syn_9_norm,real_9_norm=real_9_norm,
          dss_meta_ratio=dss_meta_ratio, mc.cores = mc)
 
