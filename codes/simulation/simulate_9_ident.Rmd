@@ -104,7 +104,7 @@ mc <- getOption("mc.cores", 20)
 mclapply(1:10000, FUN=sim_fun,
          shape=shape,rate=rate,
          ppm_step=ppm_step,
-         chenomx_lib_together=chenomx_lib_together,
+         syn_lib_together=syn_lib_together,
          real_lib_together = real_lib_together,
          d=d,output_dir="./training_set/", mc.cores = mc)
 
