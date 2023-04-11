@@ -17,10 +17,10 @@ real_lib_together=real_lib_together[,-1]
 dim(real_lib_together)
 # 9 40000
 
-chenomx_lib_together=read.csv("syn_lib_9_metabolites.csv",sep=",")
-rownames(chenomx_lib_together)=chenomx_lib_together[,1]
-chenomx_lib_together=chenomx_lib_together[,-1]
-dim(chenomx_lib_together)
+syn_lib_together=read.csv("syn_lib_9_metabolites.csv",sep=",")
+rownames(syn_lib_together)=syn_lib_together[,1]
+syn_lib_together=syn_lib_together[,-1]
+dim(syn_lib_together)
 #    9 40000
 
 ```
@@ -39,13 +39,13 @@ ppm=seq(-1,11,length.out = 40000)
 ppm_step=12/40000
 
 colnames(real_lib_together)=as.character(ppm)
-colnames(chenomx_lib_together)=as.character(ppm)
+colnames(syn_lib_together)=as.character(ppm)
 rownames(real_lib_together)
 # "Choline"      "Cysteine"     "Glucose"      "Glutamate"   
 # "Glycine"      "Leucine"      "Lysine"       "Myo_inositol"
 # "Tryptophan"
 
-rownames(chenomx_lib_together)
+rownames(syn_lib_together)
 # "Choline"      "Cysteine"     "Glucose"      "Glutamate"   
 # "Glycine"      "Leucine"      "Lysine"       "Myo_inositol"
 # "Tryptophan"  
@@ -55,7 +55,7 @@ d=1 # d is set from 1 to 7
 shape=concentration_table$shape[d]
 rate=concentration_table$rate[d]
 
-sim_fun=function(n,shape,rate,ppm_step,chenomx_lib_together,real_lib_together, d, output_dir){
+sim_fun=function(n,shape,rate,ppm_step,syn_lib_together,real_lib_together, d, output_dir){
   num=sample(1:9,1)
   shift=runif(1,-0.05,0.05)
   step=floor(shift/ppm_step)
@@ -66,7 +66,7 @@ sim_fun=function(n,shape,rate,ppm_step,chenomx_lib_together,real_lib_together, d
   real_compound=compound[real_index]
   chenomx_compound=compound[-real_index]
   
-  chenomx_spec=chenomx_lib_together[chenomx_compound,]
+  chenomx_spec=syn_lib_together[chenomx_compound,]
   concentration=rgamma(num,shape=shape,rate=rate)
 ##leave the first concentration for the real metabolite
   ## since DSS does not shift, so we do not shift the real metabolite
