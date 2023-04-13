@@ -1,0 +1,99 @@
+---
+title: "NMRQNet_data_preprocessing_menu"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_depth: 4
+    toc_float:
+      collapsed: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(PepsNMR)
+```
+
+## Setup codes
+```{r}
+##specify paths to load the source codes, input data and save the output files
+code_dir <- "./main_functions/"
+data_dir <- "./tutorial_data/"
+output_dir <- "./tutorial_data/"
+setwd(code_dir)
+{ source("pre_processing.R")
+  source("interpolation_increase_resolution.R")
+  source("normalization.R")
+  source("integral.R")
+ }
+```
+
+
+## Step 1: Load raw data
+```{r}
+setwd(data_dir)
+spectra = read.csv("control_human_plasma.csv")
+spectra = spectra[,-1]
+ppm=as.numeric(spectra[,1])
+nmr_sample=spectra[,-1]
+
+```
+
+
+## Step 2: Baseline correction
+```{r, results='hide'}
+nmr_basecorrect=apply(nmr_sample,2,FUN=pre_processing_fun,
+                      ppm=ppm,a=0.7,b=4.1)
+ppm_region=ppm[which(ppm>=0.7&ppm<=4.1)]
+
+```
+
+```{r,echo=FALSE}
+plot(ppm_region,nmr_sample[which(ppm>=0.7&ppm<=4.1),1],xlim=c(4.1,0.7),
+     xlab="Chemical shift (ppm)", ylab="Intensity (a.u.)",type="l")
+lines(ppm_region,nmr_basecorrect[,1],col="red")
+legend('topright', legend=c("Original spectrum", "Baseline-corrected spectrum"),
+       col=c("black", "red"), lty=1:1,cex=0.8)
+```
+
+## Step 3: Interpolation
+```{r}
+#scale the input spectra to the length of 12000
+
+nmr_inter=apply(nmr_basecorrect,2,FUN=interpolation_fun,
+                input_ppm=ppm_region,length=12000,
+                min=min(ppm_region),max=max(ppm_region))
+ppm_inter=c(ppm_region,runif((12000-length(ppm_region)),min=min(ppm_region),
+                             max=max(ppm_region)))
+ppm_inter=ppm_inter[order(ppm_inter,decreasing = TRUE)]
+
+
+```
+
+
+## Step 4: Normalization
+```{r}
+##Normalize the area under the curve for each spectrum to 1
+nmr_norm=apply(nmr_inter,2, FUN=normalize,ppm=ppm_inter)
+ppm_norm=rev(ppm_inter)
+```
+
+```{r, echo=FALSE}
+print('Area under the curve for each normalized plasma spectrum is:')
+```
+
+```{r}
+integral(ppm_norm,nmr_norm[,1])
+```
+
+## Step 5: Save the processed spectra for analysis
+```{r}
+data_norm=cbind(ppm_norm,nmr_norm)
+write.csv(data_norm,"./tutorial_data/control_processed_plasma.csv")
+
+```
+
+
